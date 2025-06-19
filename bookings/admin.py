@@ -3,6 +3,6 @@ from .models import Booking
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'location', 'start_time', 'end_time', 'created_at')
-    list_filter = ('location', 'start_time')
-    search_fields = ('user__email',)
+    list_display = ('agent', 'client_name', 'location', 'start_time', 'end_time', 'status')
+    list_filter = ('location', 'start_time', 'status')
+    search_fields = ('agent__email', 'client_name', 'client_phone')

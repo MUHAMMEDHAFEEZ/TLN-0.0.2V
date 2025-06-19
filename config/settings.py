@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+from __future__ import annotations
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,16 +27,12 @@ SECRET_KEY = 'django-insecure-w-q&is!eg0z)(l1+0$i^3)+n$&y&k#v0!-^lj8c1)*@(-jze(0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts
-#انا محتاج افتكر هستخدم pythonany where 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-
     # Default Django apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,30 +41,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-
     # Local apps
-    'studios',  # Your custom app for managing studios
-    'accounts',  # Your custom app for managing user accounts
-    'bookings',  # Your custom app for managing bookings
-    
+    'studios',
+    'accounts',
+    'bookings',
 
     # Third-party apps
-    'rest_framework',   # Django REST framework for building APIs
-    'drf_yasg',        # Swagger for API documentation
-    'django_filters',   # Django filters for query parameter filtering
-    'rest_framework.authtoken',  # Token authentication for DRF
-    'rest_framework_simplejwt',  # JWT authentication for DRF
-    'dj_rest_auth', # Django REST framework authentication
-    'allauth', # Django Allauth for user registration and social authentication
-    'allauth.account', # Django Allauth for account management
-    'allauth.socialaccount', # Django Allauth for social account management
-    'dj_rest_auth.registration', # Django REST framework registration
-
+    'rest_framework',
+    'drf_yasg',
+    'django_filters',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'dj_rest_auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
 
     # Social providers
     'allauth.socialaccount.providers.google',
-        # 'allauth.socialaccount.providers.facebook',
-    
 ]
 
 MIDDLEWARE = [
@@ -82,15 +75,14 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-
-
 SITE_ID = 1
 REST_USE_JWT = True
 
-#rest framework settings & jwt settings
+# REST framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -98,9 +90,18 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
-    
 }
 
+# JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
+}
 
 TEMPLATES = [
     {
@@ -117,28 +118,10 @@ TEMPLATES = [
     },
 ]
 
-
-
-
-
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "mydatabase",
-#         "USER": "mydatabaseuser",
-#         "PASSWORD": "mypassword",
-#         "HOST": "127.0.0.1",
-#         "PORT": "5432",
-#     }
-# }
-
-# Using SQLite for simplicity; for production, consider using PostgreSQL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -148,8 +131,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -167,37 +148,42 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+# Static files
 STATIC_URL = 'static/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
+# Allauth settings
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-
-REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
-}
-
 SOCIALACCOUNT_ADAPTER = 'accounts.adapter.CustomSocialAccountAdapter'
+
+# Google OAuth settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': 'YOUR_GOOGLE_CLIENT_ID',
+            'secret': 'YOUR_GOOGLE_SECRET',
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}

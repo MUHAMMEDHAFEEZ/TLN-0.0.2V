@@ -1,13 +1,13 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
-from . import views
+from .views import StudioViewSet, LocationViewSet, LocationAvailabilityView
 
-
-# Create a router and register our viewset with it.
 router = DefaultRouter()
+router.register(r'studios', StudioViewSet)
+router.register(r'locations', LocationViewSet)
 
-
-urlpatterns = [
-    path('', include(router.urls)),
+urlpatterns = router.urls + [
+    path('locations/<int:pk>/availability/',
+         LocationAvailabilityView.as_view(), 
+         name='location-availability'),
 ]
-
